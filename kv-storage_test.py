@@ -3,8 +3,8 @@ import json
 import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--key", help=' random text')
-parser.add_argument("--val", help='random_text')
+parser.add_argument("--key", help='Key of the element')
+parser.add_argument("--val", help='Value of the element')
 args = parser.parse_args()
 
 storage_path = os.path.join('data.data')
@@ -40,3 +40,4 @@ else:
         else:
             d = {args.key: None}
             print(None)
+
