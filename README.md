@@ -1,7 +1,48 @@
-# kv-storage
+KV-Storage Версия 0.6
 
-## KV-Storage Usage:
+Автор: Артём Романов (artem.romanov.03@bk.ru), Никита Унисихин ()
 
-    $ python kv-storage_test.py --key key_name --val value 
-    $ python storage.py --key key_name 
-    value
+## Описание
+
+Распределённое ключ-значение хранилище
+
+## Требования
+
+* Python версии не ниже 3.6 (используется 3.10.2)
+
+## Состав
+
+* Консольная версия для сервера: `server.py`
+* Консольная версия для клиентов: `client.py`
+* Файл настроек: ``
+* Тесты: `tests/`
+
+## Консольная версия для сервера
+
+Справка по запуску: `python server.py`
+
+Пример запуска: `python server.py`
+
+Справка по командам (пока не готово): `help [команда]`
+
+## Доступные команды:
+
+    add <key> <value>
+    get <key>
+    del <key>
+    save
+    change
+    all
+    clone
+    exit
+    size
+    keys
+    values
+
+## Консольная версия для клиентов
+
+Справка по запуску: `python client.py`
+
+Пример запуска: `python client.py`
+
+## Подробности реализации
