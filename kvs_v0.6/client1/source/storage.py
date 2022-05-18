@@ -53,7 +53,8 @@ class Storage:
 
     def get_file_size(self):
         # size = os.path.getsize(f"{self.name}.json")
-        return f"Size of {self.name} KV-Storage is {self.empty_space}/{FILE_SIZE}"
+        return f"Size of {self.name} KV-Storage is " \
+               f"{self.empty_space}/{FILE_SIZE}"
 
     def load(self):
         if not os.path.exists(f"{self.name}.json"):
