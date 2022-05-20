@@ -18,7 +18,7 @@ def main():
     def sender():
         """Отправляет команды клиентам"""
         global stop
-        while stop == False:
+        while not stop:
             global conns
             message = input(">>> ")
             if message == 'exit':
@@ -32,7 +32,8 @@ def main():
                 get_and_delete(message)
             elif commands[0] == 'exists':
                 exists(message)
-            elif commands[0] == 'save' or commands[0] == 'change' or commands[0] == 'clone':
+            elif commands[0] == 'save' or commands[0] == 'change' \
+                    or commands[0] == 'clone':
                 save_change_clone(message)
             elif commands[0] == 'keys' or commands[0] == 'values':
                 keys_values(message)
@@ -58,7 +59,7 @@ def main():
     def acceptor():
         """Постоянно принимает новых клиентов"""
         global stop
-        while stop == False:
+        while not stop:
             global conns
             conn, address = serv.accept()
             conns.append(conn)

@@ -87,10 +87,7 @@ class Storage:
 
     def get_file_size(self):
         """Получить количество свободного места"""
-        # size = os.path.getsize(f"{self.name}.json")
         return self.empty_space
-        # return f"Size of {self.name} KV-Storage is " \
-        #        f"{self.empty_space}/{FILE_SIZE}"
 
     def load(self):
         """Загрузить 'ключ-значение' хранилище"""
@@ -111,7 +108,6 @@ class Storage:
         new_storage = Storage(name)
         new_storage.load()
         self.name = name
-        # self.data = new_storage.data
 
     def exit(self):
         self.data = {}
