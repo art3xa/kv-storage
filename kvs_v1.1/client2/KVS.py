@@ -16,7 +16,11 @@ if sys.version_info < (3, 6):
 if sys.platform.startswith('linux'):
     pass
 
-import commands, storagemain
+try:
+    from modules import commands, storagemain
+except Exception as e:
+    print('Game modules not found: "{}"'.format(e), file=sys.stderr)
+    sys.exit(ERROR_MODULES_MISSING)
 
 __version__ = '1.0'
 __author__ = "Artyom Romanov"
