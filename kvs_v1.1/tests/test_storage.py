@@ -2,11 +2,11 @@ import os
 import sys
 import unittest
 
-from kvstorage.storagemain import Storage
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              os.path.pardir))
 
+from kvstorage.storagemain import Storage
 
 class TestStorage(unittest.TestCase):
 
