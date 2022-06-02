@@ -34,7 +34,8 @@ class Listener:
         while len(b) < bytes_count:  # Пока не получили нужное количество байт
             part = self.connection.recv(
                 bytes_count - len(b))  # Получаем оставшиеся байты
-            if not part:  # Если из сокета ничего не пришло, значит его закрыли с другой стороны
+            if not part:  # Если из сокета ничего не пришло, значит
+                # его закрыли с другой стороны
                 raise IOError("Соединение потеряно")
             b += part
         return b
@@ -48,7 +49,8 @@ class Listener:
         while True:
             # Определяем длину ожидаемого куска
             part_len = int.from_bytes(self.readexactly(2), "big")
-            if part_len == 0:  # Если пришёл кусок нулевой длины, то приём окончен
+            if part_len == 0:  # Если пришёл кусок нулевой
+                # длины, то приём окончен
                 return b
             b += self.readexactly(part_len)  # Считываем сам кусок
 

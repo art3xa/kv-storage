@@ -74,22 +74,29 @@ def main():
         Функция отправки данных в сокет
         данные ожидаются сразу типа bytes
         """
-        # Разбиваем передаваемые данные на куски максимальной длины 0xffff (65535)
+        # Разбиваем передаваемые данные на куски максимальной длины 0xffff
+        # (65535)
         global conns
-        for chunk in (mess[_:_ + 0xffff] for _ in range(0, len(mess), 0xffff)):
+        for chunk in (mess[_:_ + 0xffff] for _ in
+                      range(0, len(mess), 0xffff)):
             for conn in conns:
-                conn.send(len(chunk).to_bytes(2, "big"))  # Отправляем длину куска (2 байта)
+                # Отправляем длину куска (2 байта)
+                conn.send(len(chunk).to_bytes(2, "big"))
                 conn.send(chunk)  # Отправляем сам кусок
-                conn.send(b"\x00\x00")  # Обозначаем конец передачи куском нулевой длины
+                # Обозначаем конец передачи куском нулевой длины
+                conn.send(b"\x00\x00")
 
     def readexactly(bytes_count: int) -> bytes:
         """
         Функция приёма определённого количества байт
         """
         b = b''
-        while len(b) < bytes_count:  # Пока не получили нужное количество байт
-            part = sock.recv(bytes_count - len(b))  # Получаем оставшиеся байты
-            if not part:  # Если из сокета ничего не пришло, значит его закрыли с другой стороны
+        while len(b) < bytes_count:  # Пока не получили нужное
+            # количество байт
+            part = sock.recv(bytes_count - len(b))  # Получаем
+            # оставшиеся байты
+            if not part:  # Если из сокета ничего не пришло,
+                # значит его закрыли с другой стороны
                 raise IOError("Соединение потеряно")
             b += part
         return b
@@ -101,8 +108,10 @@ def main():
         """
         b = b''
         while True:
-            part_len = int.from_bytes(readexactly(2), "big")  # Определяем длину ожидаемого куска
-            if part_len == 0:  # Если пришёл кусок нулевой длины, то приём окончен
+            # Определяем длину ожидаемого куска
+            part_len = int.from_bytes(readexactly(2), "big")
+            if part_len == 0:  # Если пришёл кусок
+                # нулевой длины, то приём окончен
                 return b
             b += readexactly(part_len)  # Считываем сам кусок
 
