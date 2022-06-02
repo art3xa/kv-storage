@@ -56,6 +56,18 @@ def main():
                         else:
                             raise
 
+    def reliable_send(mess: bytes) -> None:
+        """
+        Функция отправки данных в сокет
+        Обратите внимание, что данные ожидаются сразу типа bytes
+        """
+        # Разбиваем передаваемые данные на куски максимальной длины 0xffff (65535)
+        global conns
+        for chunk in (mess[_:_ + 0xffff] for _ in range(0, len(mess), 0xffff)):
+            conns[i].send(len(chunk).to_bytes(2, "big"))  # Отправляем длину куска (2 байта)
+            conns[i].send(chunk)  # Отправляем сам кусок
+            conns[i].send(b"\x00\x00")  # Обозначаем конец передачи куском нулевой длины
+
     def acceptor():
         """Постоянно принимает новых клиентов"""
         global stop

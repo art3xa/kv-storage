@@ -69,6 +69,30 @@ def main():
             sock.send(result.encode())
         sock.close()
 
+    def readexactly(bytes_count: int) -> bytes:
+        """
+        Функция приёма определённого количества байт
+        """
+        b = b''
+        while len(b) < bytes_count:  # Пока не получили нужное количество байт
+            part = sock.recv(bytes_count - len(b))  # Получаем оставшиеся байты
+            if not part:  # Если из сокета ничего не пришло, значит его закрыли с другой стороны
+                raise IOError("Соединение потеряно")
+            b += part
+        return b
+
+    def reliable_receive() -> bytes:
+        """
+        Функция приёма данных
+        возвращает тип bytes
+        """
+        b = b''
+        while True:
+            part_len = int.from_bytes(readexactly(2), "big")  # Определяем длину ожидаемого куска
+            if part_len == 0:  # Если пришёл кусок нулевой длины, то приём окончен
+                return b
+            b += readexactly(part_len)  # Считываем сам кусок
+
 
 if __name__ == '__main__':
     main()
