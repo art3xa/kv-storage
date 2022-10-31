@@ -5,7 +5,7 @@ import logging
 import os.path
 
 from . import exceptions
-
+from . import prefixtree
 __all__ = ['Storage', 'LOGGER_NAME']
 FILE_SIZE = 2147483648
 LOGGER_NAME = 'modules.storagemain'
@@ -15,9 +15,11 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 class Storage:
     """'Ключ-значение' хранилище"""
     data = {}
+    tree_keys = prefixtree.PrefixTree(list(data.keys()))
+    tree_values = prefixtree.PrefixTree(list(data.values()))
 
     def __init__(self, name):
-        """Иницализация 'ключ-значение' хранилища"""
+        """Инициализация 'ключ-значение' хранилища"""
         LOGGER.info('Initializing kv-storage file "%s"', name)
         self.name = name
         self.empty_space = FILE_SIZE
@@ -26,6 +28,8 @@ class Storage:
     def __iter__(self):
         with open(f"{self.name}.json", "r") as file:
             data = json.load(file)
+            self.tree_keys = prefixtree.PrefixTree(list(data.keys()))
+            self.tree_values = prefixtree.PrefixTree(list(data.values()))
             for key in data:
                 yield key
 
@@ -41,18 +45,34 @@ class Storage:
             return str(exceptions.LackOfMemoryError(self.name))
         self.empty_space -= count
         self.data[key] = value
+        self.tree_keys.add_word(key)
+        self.tree_values.add_word(value)
         self.save()
         LOGGER.info(f"Item {value} was successfully added to KV-Storage")
         return f"Item {value} was successfully added to KV-Storage"
 
     def get(self, key: str):
         """Получить значение по ключу"""
-        if key not in self:
+        words = self.tree_keys.starts_with(key)
+        if not words:
             LOGGER.warning(f'There is no data with the '
                            f'key "{key}" in data file "{self.name}". Skip')
             return str(exceptions.NoSuchKeyError(self.name, key))
-        LOGGER.info(f'Get value {self.data[key]} from the key {key}')
-        return self.data[key]
+        values = []
+        for word in words:
+            values.append(self.data[word])
+            LOGGER.info(f'Get value {self.data[word]} from the key {word}')
+        key_values = dict(zip(words, values))
+        return str(key_values)
+
+    def search(self, value: str):
+        """Поиск по значению"""
+        words = self.tree_values.starts_with(value)
+        if not words:
+            LOGGER.warning(f'There is no data with the '
+                           f'value "{value}" in data file "{self.name}". Skip')
+            return str(exceptions.NoSuchValueError(self.name, value))
+        return str(words)
 
     def delete(self, key: str):
         """Удалить ключ-значение по ключу"""
@@ -62,13 +82,14 @@ class Storage:
         self.empty_space += count
         self.data.pop(key)
         self.save()
+        self.load()
         return f'Key "{key}" was successfully deleted from KV-Storage'
 
     def exists(self, key: str):
+        """Проверить наличие ключа"""
         if key in self:
             return f'The key "{key}" in data file "{self.name}"'
-        else:
-            return f'There is no key "{key}" in data file "{self.name}"'
+        return f'There is no key "{key}" in data file "{self.name}"'
 
     def keys(self):
         """Получить все ключи"""
@@ -93,9 +114,10 @@ class Storage:
         """Загрузить 'ключ-значение' хранилище"""
         if not os.path.exists(f"{self.name}.json"):
             self.save()
-        self.save()
         with open(f"{self.name}.json", "r+") as read_file:
             self.data = json.load(read_file)
+            self.tree_keys = prefixtree.PrefixTree(list(self.data.keys()))
+            self.tree_values = prefixtree.PrefixTree(list(self.data.values()))
 
     def save(self):
         """Сохранить 'ключ-значение' хранилище"""
@@ -110,7 +132,10 @@ class Storage:
         self.name = name
 
     def exit(self):
+        """Выход из 'ключ-значение' хранилища и удаление его"""
         self.data = {}
+        self.tree_keys = prefixtree.PrefixTree(self.data.keys())
+        self.tree_values = prefixtree.PrefixTree(self.data.values())
         os.remove(f"{self.name}.json")
         self.name = None
         self.empty_space = FILE_SIZE

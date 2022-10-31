@@ -16,6 +16,7 @@ def main():
     global conns
 
     def error_handling(e, index):
+        """Обработка ошибок"""
         if e.errno == 10053:
             conns.pop(index)
             print("Подключено пользователй:", len(conns))
@@ -23,6 +24,7 @@ def main():
             raise
 
     def send_messages(message):
+        """Отправка сообщений всем клиентам"""
         for conn in conns:
             conn.send(message.encode())
 
@@ -41,6 +43,8 @@ def main():
                 add(message)
             elif commands[0] == 'get' or commands[0] == 'del':
                 get_and_delete(message)
+            elif commands[0] == 'search':
+                search(message)
             elif commands[0] == 'exists':
                 exists(message)
             elif commands[0] == 'save' or commands[0] == 'change' \
@@ -84,7 +88,7 @@ def main():
         """
         b = b''
         while len(b) < bytes_count:  # Пока не получили нужное количество байт
-            part = sock.recv(bytes_count - len(b))  # Получаем оставшиеся байты
+            part = serv.recv(bytes_count - len(b))  # Получаем оставшиеся байты
             if not part:  # Если из сокета ничего не пришло, значит
                 # его закрыли с другой стороны
                 raise IOError("Соединение потеряно")
@@ -134,6 +138,12 @@ def main():
     t2.start()
 
     def add(message):
+        """
+        Добавляет значение в распределённое хранилище,
+        сначала опрашивая всех клиентов о размере хранилища,
+        затем отправляя команду на добавление в наиболее
+        пустое хранилище
+        """
         sizes = {}
         send_messages('size')
         for j in range(len(conns)):
@@ -149,6 +159,10 @@ def main():
         print(dat.decode())
 
     def get_and_delete(message):
+        """
+        Получает значение из распределённого хранилища,
+        либо удаляет его, если ключ существует.
+        """
         gets = []
         send_messages(message)
         for j in range(len(conns)):
@@ -158,14 +172,42 @@ def main():
                     gets.append(data)
             except socket.error as e:
                 error_handling(e, j)
+        keys_values = {}
         if not [i for i in gets if i != gets[0]]:
             print(gets[0])
         else:
             for x in gets:
                 if not x.startswith('There is no data with the key'):
-                    print(x)
+                    dct = ast.literal_eval(x)
+                    keys_values.update(dct)
+            print(keys_values)
+
+    def search(message):
+        """
+        Ищет значение в распределённом хранилище.
+        """
+        values = []
+        send_messages(message)
+        for j in range(len(conns)):
+            try:
+                data = conns[j].recv(1024).decode()
+                if data:
+                    values.append(data)
+            except socket.error as e:
+                error_handling(e, j)
+        values2 = []
+        if not [i for i in values if i != values[0]]:
+            print(values[0])
+        else:
+            for x in values:
+                if not x.startswith('There is no data with the value'):
+                    values2 = values2 + list(eval(x))
+            print(values2)
 
     def exists(message):
+        """
+        Проверяет наличие ключа в распределённом хранилище.
+        """
         exists = []
         send_messages(message)
         for j in range(len(conns)):
@@ -183,6 +225,11 @@ def main():
                     print(x)
 
     def save_change_clone(message):
+        """
+        Сохраняет изменения в хранилище,
+        меняет хранилище,
+        клонирует хранилище.
+        """
         gets = []
         send_messages(message)
         for j in range(len(conns)):
@@ -196,6 +243,9 @@ def main():
             print(gets[0])
 
     def keys_values(message):
+        """
+        Выводит все ключи или значения из хранилища
+        """
         keys = []
         send_messages(message)
         for j in range(len(conns)):
@@ -209,6 +259,9 @@ def main():
         print(keys)
 
     def get_all(message):
+        """
+        Получает все значения из распределённого хранилища.
+        """
         all = {}
         send_messages(message)
         for j in range(len(conns)):
@@ -222,6 +275,9 @@ def main():
         print(all)
 
     def size(message):
+        """
+        Выводит размер хранилища (размеры всех клиентов).
+        """
         size = 0
         send_messages(message)
         for j in range(len(conns)):

@@ -12,6 +12,7 @@ class Commands(object):
             'del': self.delete,
             'exists': self.exists,
             'get': self.get,
+            'search': self.search,
             'save': self.save,
             'change': self.change_storage,
             'all': self.get_all,
@@ -50,9 +51,18 @@ class Commands(object):
         key = args[1]
         try:
             return storage.get(key)
-        except KeyError:
-            return (f'There is no data with the '
-                    f'key {key} in data file {storage.name}')
+        except Exception as e:
+            return e
+
+    @staticmethod
+    def search(*args):
+        """Поиск по значению"""
+        storage = args[0]
+        value = args[1]
+        try:
+            return storage.search(value)
+        except Exception as e:
+            return e
 
     @staticmethod
     def delete(*args):
@@ -61,8 +71,8 @@ class Commands(object):
         key = args[1]
         try:
             return storage.delete(key)
-        except KeyError:
-            return 'Key not found'
+        except Exception as e:
+            return e
 
     @staticmethod
     def exists(*args):
@@ -71,8 +81,8 @@ class Commands(object):
         key = args[1]
         try:
             return storage.exists(key)
-        except KeyError:
-            return 'Key not found'
+        except Exception as e:
+            return e
 
     @staticmethod
     def keys(*args):
@@ -100,7 +110,6 @@ class Commands(object):
             return storage.all_items()
         except Exception as e:
             return e
-        # return f"All {storage.name} KV-Storage data: " + str(storage.data)
 
     @staticmethod
     def get_size(*args):

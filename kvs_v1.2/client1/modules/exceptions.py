@@ -18,6 +18,15 @@ class NoSuchKeyError(BaseException):
         return self.message
 
 
+class NoSuchValueError(BaseException):
+    def __init__(self, file, value):
+        self.message = (f'There is no data with the '
+                        f'value {value} in data file {file}')
+
+    def __str__(self):
+        return self.message
+
+
 class LackOfMemoryError(BaseException):
     def __init__(self, file):
         self.message = (f'There is no memory for your data in '

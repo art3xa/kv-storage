@@ -1,11 +1,10 @@
+from kvstorage.storagemain import Storage
 import os
 import sys
 import unittest
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              os.path.pardir))
-
-from kvstorage.storagemain import Storage
 
 
 class TestStorage(unittest.TestCase):
@@ -31,7 +30,23 @@ class TestStorage(unittest.TestCase):
     def test_get(self):
         storage = Storage('test')
         storage.add('2', '3')
-        self.assertEqual(storage.get('2'), '3')
+        self.assertEqual(storage.get('2'), "{'2': '3'}")
+        storage.exit()
+
+    def test_gets(self):
+        storage = Storage('test')
+        storage.add('банка', 'телефон')
+        storage.add('банан', 'телевизор')
+        self.assertEqual(
+            storage.get('ба'),
+            "{'банка': 'телефон', 'банан': 'телевизор'}")
+        storage.exit()
+
+    def test_search(self):
+        storage = Storage('test')
+        storage.add('123', 'worst')
+        storage.add('hi', 'world')
+        self.assertEqual(storage.search('wo'), "['worst', 'world']")
         storage.exit()
 
     def test_delete(self):
@@ -93,9 +108,11 @@ class TestStorage(unittest.TestCase):
         storage = Storage('test')
         storage.add('hi', 'python')
         storage.save()
-        storage = Storage('test')
+        storage.exit()
+        storage = Storage('123')
         storage.save()
         self.assertEqual(storage.data, {})
+        storage.exit()
 
 
 class TestFails(unittest.TestCase):

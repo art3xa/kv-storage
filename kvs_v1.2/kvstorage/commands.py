@@ -1,6 +1,6 @@
 """Модуль содержит все возможные команды"""
 
-import storagemain
+from . import storagemain
 
 
 class Commands(object):
@@ -12,6 +12,7 @@ class Commands(object):
             'del': self.delete,
             'exists': self.exists,
             'get': self.get,
+            'search': self.search,
             'save': self.save,
             'change': self.change_storage,
             'all': self.get_all,
@@ -50,9 +51,21 @@ class Commands(object):
         key = args[1]
         try:
             return storage.get(key)
-        except KeyError:
-            return (f'There is no data with the '
-                    f'key {key} in data file {storage.name}')
+        except Exception as e:
+            return e
+
+    @staticmethod
+    def search(*args):
+        """Поиск по значению"""
+        storage = args[0]
+        value = args[1]
+        try:
+            return storage.search(value)
+        except Exception as e:
+            return e
+        # except KeyError:
+        #     return (f'There is no data with the '
+        #             f'value {value} in data file {storage.name}')
 
     @staticmethod
     def delete(*args):
@@ -61,8 +74,10 @@ class Commands(object):
         key = args[1]
         try:
             return storage.delete(key)
-        except KeyError:
-            return 'Key not found'
+        except Exception as e:
+            return e
+        # except KeyError:
+        #     return 'Key not found'
 
     @staticmethod
     def exists(*args):
@@ -71,8 +86,10 @@ class Commands(object):
         key = args[1]
         try:
             return storage.exists(key)
-        except KeyError:
-            return 'Key not found'
+        except Exception as e:
+            return e
+        # except KeyError:
+        #     return 'Key not found'
 
     @staticmethod
     def keys(*args):
